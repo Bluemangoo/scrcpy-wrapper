@@ -4,8 +4,8 @@ use crate::{d_column, d_row, d_sub_title, d_text_input, define_component, t};
 use iced::widget::{checkbox, text};
 
 define_component!(performance, |config, _| {
-    let have_audio = config.audio_source != AudioSource::No;
-    let have_video = config.video_source != VideoSource::No;
+    let have_audio = config.default.audio_source != AudioSource::No;
+    let have_video = config.default.video_source != VideoSource::No;
 
     let sub_title = d_sub_title!(t! {
         en: "Performance",
@@ -48,13 +48,13 @@ define_component!(performance, |config, _| {
                 .to_string(),
             ))
             .push(
-                d_text_input!("8M", &config.video_bit_rate.to_string())
+                d_text_input!("8M", &config.default.video_bit_rate.to_string())
                     .on_input(Message::VideoBitRateChanged)
                     .width(100),
             );
     }
 
-    if have_audio && config.audio_codec != AudioCodec::Raw {
+    if have_audio && config.default.audio_codec != AudioCodec::Raw {
         bit_rate = bit_rate
             .push(text(
                 t! {
@@ -64,19 +64,19 @@ define_component!(performance, |config, _| {
                 .to_string(),
             ))
             .push(
-                d_text_input!("128K", &config.audio_bit_rate.to_string())
+                d_text_input!("128K", &config.default.audio_bit_rate.to_string())
                     .on_input(Message::AudioBitRateChanged)
                     .width(100),
             );
     }
 
-    if have_video || (have_audio && config.audio_codec != AudioCodec::Raw) {
+    if have_video || (have_audio && config.default.audio_codec != AudioCodec::Raw) {
         column = column.push(bit_rate);
     }
 
     if have_video {
         let fps = d_row![
-            if config.video_source == VideoSource::Camera {
+            if config.default.video_source == VideoSource::Camera {
                 text(
                     t! {
                         en: "FPS: ",
@@ -95,7 +95,7 @@ define_component!(performance, |config, _| {
             },
             d_text_input!(
                 "",
-                &match &config.fps {
+                &match &config.default.fps {
                     None => "".to_string(),
                     Some(fps) => fps.to_string(),
                 }
@@ -126,7 +126,7 @@ define_component!(performance, |config, _| {
             .push(
                 d_text_input!(
                     "50",
-                    &match &config.video_buffer {
+                    &match &config.default.video_buffer {
                         None => "".to_string(),
                         Some(buffer) => buffer.to_string(),
                     },
@@ -148,7 +148,7 @@ define_component!(performance, |config, _| {
             .push(
                 d_text_input!(
                     "50",
-                    &match &config.audio_buffer {
+                    &match &config.default.audio_buffer {
                         None => "".to_string(),
                         Some(buffer) => buffer.to_string(),
                     },
@@ -166,7 +166,7 @@ define_component!(performance, |config, _| {
                     zh: "同步"
                 }
                 .to_string(),
-                config.buffer_sync,
+                config.default.buffer_sync,
             )
             .on_toggle(Message::BufferSyncChanged),
         );

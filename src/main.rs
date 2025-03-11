@@ -31,54 +31,56 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     drop(CONFIG.read().unwrap());
 
-    iced::application(
-        ui::WinMain::title,
-        ui::WinMain::update,
-        ui::WinMain::view,
-    )
-    .window(Settings {
-        size: Size {
-            width: 800.0,
-            height: 600.0,
-        },
-        resizable: true,
-        decorations: true,
-        min_size: Some(Size {
-            width: 600.0,
-            height: 450.0,
-        }),
-        ..Default::default()
-    })
-    .subscription(ui::WinMain::subscription)
-    .default_font(Font::with_name(if cfg!(target_os = "windows") {
-        "Microsoft YaHei"
-    } else if cfg!(target_os = "macos") {
-        "PingFang SC"
-    } else {
-        "Noto Sans CJK SC"
-    }))
-    .run()
-    .unwrap();
+    iced::application(ui::WinMain::title, ui::WinMain::update, ui::WinMain::view)
+        .window(Settings {
+            size: Size {
+                width: 800.0,
+                height: 600.0,
+            },
+            resizable: true,
+            decorations: true,
+            min_size: Some(Size {
+                width: 600.0,
+                height: 450.0,
+            }),
+            ..Default::default()
+        })
+        .subscription(ui::WinMain::subscription)
+        .default_font(Font::with_name(if cfg!(target_os = "windows") {
+            "Microsoft YaHei"
+        } else if cfg!(target_os = "macos") {
+            "PingFang SC"
+        } else {
+            "Noto Sans CJK SC"
+        }))
+        .run()
+        .unwrap();
 
-    let exe = CONFIG.read().unwrap().executable.clone().unwrap_or_default();
+    let exe = CONFIG
+        .read()
+        .unwrap()
+        .default
+        .executable
+        .clone()
+        .unwrap_or_default();
     let command = ARGS.read().unwrap().clone();
 
     if let Some(args) = command {
-            let _ = CONFIG.read().unwrap().to_raw().dump();
+        let _ = CONFIG.read().unwrap().to_raw().dump();
 
-            let mut p = std::process::Command::new(exe);
+        let mut p = std::process::Command::new(exe);
 
-            if !args.trim().is_empty() {
-                let args=shell_words::split(&args).unwrap();
-                p.args(args);
-            }
+        if !args.trim().is_empty() {
+            let args = shell_words::split(&args).unwrap();
+            p.args(args);
+        }
 
-            p.stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .spawn()
-                .unwrap()
-                .wait()
-                .unwrap();
+        p.stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap()
+            .wait()
+            .unwrap();
     }
 
     Ok(())

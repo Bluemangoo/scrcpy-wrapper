@@ -9,6 +9,7 @@ mod output;
 mod virtual_display;
 mod others;
 mod component;
+mod config;
 
 pub use exe_info::*;
 pub use action_section::*;
@@ -20,3 +21,4 @@ pub use control::*;
 pub use output::*;
 pub use virtual_display::*;
 pub use others::*;
+pub use config::*;

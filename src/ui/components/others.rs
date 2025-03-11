@@ -17,13 +17,13 @@ define_component!(others, |config, _| {
             }
             .to_string()
         ),
-        StateButton::button(config.app_name_type, Message::AppNameTypeChanged),
-        d_text_input!("", &config.start_app)
+        StateButton::button(config.default.app_name_type, Message::AppNameTypeChanged),
+        d_text_input!("", &config.default.start_app)
             .width(200)
             .on_input(Message::StartAppChanged),
         checkbox(
             t! {en: "Restart if running", zh: "如果正在运行则重启"}.to_string(),
-            config.restart_app,
+            config.default.restart_app,
         )
         .on_toggle(Message::RestartAppChanged),
     ];
@@ -38,7 +38,7 @@ define_component!(others, |config, _| {
         ),
         d_text_input!(
             "",
-            &match &config.time_limit {
+            &match &config.default.time_limit {
                 Some(time_limit) => time_limit.to_string(),
                 None => "".to_string(),
             },
@@ -50,37 +50,37 @@ define_component!(others, |config, _| {
 
     let stay_awake = checkbox(
         t! {en: "Stay awake (device)", zh: "保持唤醒（设备）"}.to_string(),
-        config.stay_awake,
+        config.default.stay_awake,
     )
     .on_toggle(Message::StayAwakeChanged);
 
     let disable_window = checkbox(
         t! {en: "Disable window", zh: "禁用窗口"}.to_string(),
-        config.disable_window,
+        config.default.disable_window,
     )
     .on_toggle(Message::DisableWindowChanged);
 
     let borderless = checkbox(
         t! {en: "Borderless", zh: "无边框"}.to_string(),
-        config.borderless,
+        config.default.borderless,
     )
     .on_toggle(Message::BorderlessChanged);
 
     let always_on_top = checkbox(
         t! {en: "Always on top", zh: "窗口置顶"}.to_string(),
-        config.always_on_top,
+        config.default.always_on_top,
     )
     .on_toggle(Message::AlwaysOnTopChanged);
 
     let fullscreen = checkbox(
         t! {en: "Fullscreen", zh: "全屏"}.to_string(),
-        config.fullscreen,
+        config.default.fullscreen,
     )
     .on_toggle(Message::FullscreenChanged);
 
     let disable_screensaver = checkbox(
         t! {en: "Disable screensaver (PC)", zh: "禁用屏保（电脑）"}.to_string(),
-        config.disable_screensaver,
+        config.default.disable_screensaver,
     )
     .on_toggle(Message::DisableScreensaverChanged);
 
@@ -92,7 +92,7 @@ define_component!(others, |config, _| {
             }
             .to_string()
         ),
-        d_text_input!("", &config.additional_args)
+        d_text_input!("", &config.default.additional_args)
             .width(700)
             .on_input(Message::AdditionalArgsChanged)
     ];

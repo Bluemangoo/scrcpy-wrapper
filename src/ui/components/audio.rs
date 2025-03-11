@@ -20,14 +20,14 @@ define_component!(audio, |config, _| {
             }
             .to_string()
         ),
-        StateButton::pick_list(config.audio_source, Message::AudioSourceChanged)
+        StateButton::pick_list(config.default.audio_source, Message::AudioSourceChanged)
     ];
 
-    if config.audio_source == AudioSource::No {
+    if config.default.audio_source == AudioSource::No {
         return column.push(source).into();
     }
 
-    if config.audio_source == AudioSource::Playback {
+    if config.default.audio_source == AudioSource::Playback {
         source = source.push(
             checkbox(
                 t! {
@@ -35,7 +35,7 @@ define_component!(audio, |config, _| {
                     zh: "复制音频"
                 }
                 .to_string(),
-                config.audio_dup,
+                config.default.audio_dup,
             )
             .on_toggle(Message::AudioDupChanged),
         );
@@ -48,7 +48,7 @@ define_component!(audio, |config, _| {
                 zh: "播放"
             }
             .to_string(),
-            config.audio_playback,
+            config.default.audio_playback,
         )
         .on_toggle(Message::AudioPlaybackChanged),
     );
@@ -61,7 +61,7 @@ define_component!(audio, |config, _| {
             }
             .to_string()
         ),
-        StateButton::pick_list(config.audio_codec, Message::AudioCodecChanged),
+        StateButton::pick_list(config.default.audio_codec, Message::AudioCodecChanged),
         text(
             t! {
                 en: "Options: ",
@@ -69,7 +69,7 @@ define_component!(audio, |config, _| {
             }
             .to_string()
         ),
-        d_text_input!("", &config.audio_codec_options)
+        d_text_input!("", &config.default.audio_codec_options)
             .width(300)
             .on_input(Message::AudioCodecOptionsChanged)
     ];

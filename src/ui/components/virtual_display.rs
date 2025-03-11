@@ -12,7 +12,7 @@ define_component!(virtual_display, |config, _| {
 
     let mut column = d_column![sub_title];
 
-    if config.video_source != VideoSource::Display {
+    if config.default.video_source != VideoSource::Display {
         return column
             .push(
                 text(
@@ -33,11 +33,11 @@ define_component!(virtual_display, |config, _| {
             zh: "启用虚拟显示器"
         }
         .to_string(),
-        config.virtual_display,
+        config.default.virtual_display,
     )
     .on_toggle(Message::VirtualDisplayChanged);
 
-    let display_orientation = if config.display_width >= config.display_height {
+    let display_orientation = if config.default.display_width >= config.default.display_height {
         String::from(&t! {
             en: "landscape",
             zh: "横屏"
@@ -57,11 +57,11 @@ define_component!(virtual_display, |config, _| {
             }
             .to_string(),
         ),
-        d_text_input!("", &config.display_width.to_string())
+        d_text_input!("", &config.default.display_width.to_string())
             .width(80)
             .on_input(Message::DisplayWidthChanged),
         text("x"),
-        d_text_input!("", &config.display_height.to_string())
+        d_text_input!("", &config.default.display_height.to_string())
             .width(80)
             .on_input(Message::DisplayHeightChanged),
         text(display_orientation.to_string())
@@ -73,12 +73,12 @@ define_component!(virtual_display, |config, _| {
             zh: "关闭时销毁应用"
         }
         .to_string(),
-        config.destroy_app_on_close,
+        config.default.destroy_app_on_close,
     )
     .on_toggle(Message::DestroyAppOnCloseChanged);
 
     column = column.push(enable_virtual_display);
-    if config.virtual_display {
+    if config.default.virtual_display {
         column = column.push(display_size).push(destroy_app_on_close);
     }
     column.into()

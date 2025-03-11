@@ -12,7 +12,7 @@ define_component!(output, |config, _| {
 
     let column = d_column![sub_title];
 
-    if config.video_source == VideoSource::No && config.audio_source == AudioSource::No {
+    if config.default.video_source == VideoSource::No && config.default.audio_source == AudioSource::No {
         return column
             .push(
                 text(
@@ -35,7 +35,7 @@ define_component!(output, |config, _| {
             }
             .to_string(),
         ),
-        d_text_input!("", &config.record)
+        d_text_input!("", &config.default.record)
             .width(500)
             .on_input(Message::RecordChanged),
     ];
@@ -48,7 +48,7 @@ define_component!(output, |config, _| {
             }
             .to_string(),
         ),
-        d_text_input!("", &config.v4l2)
+        d_text_input!("", &config.default.v4l2)
             .width(500)
             .on_input(Message::V4l2Changed),
     ];

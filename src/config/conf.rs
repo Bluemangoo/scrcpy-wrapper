@@ -1,6 +1,7 @@
 use crate::i18n::{Language, LANGUAGE};
 use crate::t;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::env::{current_dir, current_exe};
 use std::error::Error;
 use std::fs::File;
@@ -22,7 +23,7 @@ fn config_path() -> PathBuf {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct ConfigRaw {
+pub struct ConfigItemRaw {
     pub language: Option<String>,
     pub executable: Option<String>,
     pub connect_method: Option<String>,
@@ -70,7 +71,7 @@ pub struct ConfigRaw {
 }
 
 #[derive(Debug, Clone)]
-pub struct Config {
+pub struct ConfigItem {
     pub language: Language,
     pub executable: Option<String>,
     pub connect_method: ConnectMethod,
@@ -116,9 +117,14 @@ pub struct Config {
     pub disable_screensaver: bool,
     pub additional_args: String,
 }
-impl ConfigRaw {
-    pub fn to_config(&self, apply: bool) -> Result<Config, Box<dyn Error>> {
-        let base = current_exe()?.parent().unwrap().to_str().unwrap().to_string();
+impl ConfigItemRaw {
+    pub fn to_config(&self, apply: bool) -> Result<ConfigItem, Box<dyn Error>> {
+        let base = current_exe()?
+            .parent()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
         let language = match &self.language {
             Some(language) => match language.as_str() {
                 "zh" => {
@@ -172,7 +178,7 @@ impl ConfigRaw {
             Some(v) => Some(v.clone()),
         };
 
-        Ok(Config {
+        Ok(ConfigItem {
             language,
             executable,
             connect_method: ConnectMethod::from_config_str(&self.connect_method),
@@ -219,32 +225,11 @@ impl ConfigRaw {
             additional_args: self.additional_args.clone().unwrap_or_default(),
         })
     }
-
-    pub fn load() -> Result<Self, Box<dyn Error>> {
-        if Path::new(&config_path()).exists() {
-            let mut file = File::open(config_path())?;
-            let mut toml_str = String::new();
-            file.read_to_string(&mut toml_str)?;
-            let t: ConfigRaw = toml::from_str(toml_str.as_str())?;
-            Ok(t)
-        } else {
-            Err("Config file not found".into())
-        }
-    }
-
-    pub fn dump(&self) -> Result<(), Box<dyn Error>> {
-        if let Some(parent) = config_path().parent() {
-            fs::create_dir_all(parent)?;
-        }
-        let mut file = File::create(config_path())?;
-        file.write_all(toml::to_string(self)?.as_bytes())?;
-        Ok(())
-    }
 }
 
-impl Config {
-    pub fn to_raw(&self) -> ConfigRaw {
-        ConfigRaw {
+impl ConfigItem {
+    pub fn to_raw(&self) -> ConfigItemRaw {
+        ConfigItemRaw {
             language: Some(self.language.to_config_string()),
             executable: self.executable.clone(),
             connect_method: Some(self.connect_method.to_config_string()),
@@ -289,6 +274,78 @@ impl Config {
             fullscreen: Some(self.fullscreen),
             disable_screensaver: Some(self.disable_screensaver),
             additional_args: Some(self.additional_args.clone()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ConfigRaw {
+    pub version: Option<u32>,
+    pub default: Option<ConfigItemRaw>,
+    pub saved: Option<HashMap<String, ConfigItemRaw>>,
+}
+
+impl ConfigRaw {
+    pub fn to_config(&self, apply: bool) -> Result<Config, Box<dyn Error>> {
+        Ok(Config {
+            default: self.default.clone().unwrap_or_default().to_config(apply)?,
+            saved: self
+                .saved
+                .clone()
+                .unwrap_or_default()
+                .iter()
+                .map(|(k, v)| (k.clone(), v.to_config(false).unwrap()))
+                .collect(),
+        })
+    }
+
+    pub fn load() -> Result<Self, Box<dyn Error>> {
+        if Path::new(&config_path()).exists() {
+            let mut file = File::open(config_path())?;
+            let mut toml_str = String::new();
+            file.read_to_string(&mut toml_str)?;
+            let t: ConfigRaw = toml::from_str(toml_str.as_str())?;
+            if t.version.is_none() {
+                let t: ConfigItemRaw = toml::from_str(toml_str.as_str())?;
+                return Ok(Self {
+                    version: Some(1),
+                    default: Some(t),
+                    saved: None,
+                });
+            }
+            Ok(t)
+        } else {
+            Err("Config file not found".into())
+        }
+    }
+
+    pub fn dump(&self) -> Result<(), Box<dyn Error>> {
+        if let Some(parent) = config_path().parent() {
+            fs::create_dir_all(parent)?;
+        }
+        let mut file = File::create(config_path())?;
+        file.write_all(toml::to_string(self)?.as_bytes())?;
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Config {
+    pub default: ConfigItem,
+    pub saved: HashMap<String, ConfigItem>,
+}
+
+impl Config {
+    pub fn to_raw(&self) -> ConfigRaw {
+        ConfigRaw {
+            version: Some(1),
+            default: Some(self.default.to_raw()),
+            saved: Some(
+                self.saved
+                    .iter()
+                    .map(|(k, v)| (k.clone(), v.to_raw()))
+                    .collect(),
+            ),
         }
     }
 }

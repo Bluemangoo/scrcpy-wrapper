@@ -8,9 +8,9 @@ define_component!(connect_method, |config, _| {
             zh: "连接方式：",
             en: "Connecting method: "
         }),
-        StateButton::button(config.connect_method, Message::ConnectMethodChanged),
+        StateButton::button(config.default.connect_method, Message::ConnectMethodChanged),
         horizontal_space(),
-        StateButton::button(config.language, Message::LanguageChanged)
+        StateButton::button(config.default.language, Message::LanguageChanged)
     ]
     .into()
 });

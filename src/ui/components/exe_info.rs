@@ -4,7 +4,7 @@ use iced::widget::text;
 
 define_component!(exe_info, |config, _| {
     let executable_path = {
-        let exe_str = match &config.executable {
+        let exe_str = match &config.default.executable {
             None => String::from(""),
             Some(p) => p.clone(),
         };

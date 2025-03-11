@@ -17,7 +17,7 @@ define_component!(control, |config, _| {
             }
             .to_string()
         ),
-        StateButton::pick_list(config.keyboard, Message::KeyboardChanged)
+        StateButton::pick_list(config.default.keyboard, Message::KeyboardChanged)
     ];
     let mouse = d_row![
         text(
@@ -27,7 +27,7 @@ define_component!(control, |config, _| {
             }
             .to_string()
         ),
-        StateButton::pick_list(config.mouse, Message::MouseChanged)
+        StateButton::pick_list(config.default.mouse, Message::MouseChanged)
     ];
     let gamepad = d_row![
         text(
@@ -37,7 +37,7 @@ define_component!(control, |config, _| {
             }
             .to_string()
         ),
-        StateButton::pick_list(config.gamepad, Message::GamepadChanged)
+        StateButton::pick_list(config.default.gamepad, Message::GamepadChanged)
     ];
 
     d_column![sub_title, keyboard, mouse, gamepad].into()

@@ -1,9 +1,12 @@
-use crate::config::{AppNameType, AudioCodec, AudioSource, Camera, ConnectMethod, Gamepad, Keyboard, Mouse, OrientationAngle, OrientationType, VideoCodec, VideoSource};
+use crate::config::{
+    AppNameType, AudioCodec, AudioSource, Camera, ConnectMethod, Gamepad, Keyboard, Mouse,
+    OrientationAngle, OrientationType, VideoCodec, VideoSource,
+};
 use crate::CONFIG;
 
 pub fn build_args() -> String {
     let mut args = String::new();
-    let config = CONFIG.try_read().unwrap();
+    let config = CONFIG.try_read().unwrap().default.clone();
     let have_audio = config.audio_source != AudioSource::No;
     let have_video = config.video_source != VideoSource::No;
 
@@ -208,12 +211,12 @@ pub fn build_args() -> String {
             args.push_str(" --gamepad=aoa");
         }
     }
-    
-    if !config.record.trim().is_empty() {  
+
+    if !config.record.trim().is_empty() {
         args.push_str(" --record=");
         args.push_str(config.record.trim());
     }
-    
+
     if !config.v4l2.trim().is_empty() {
         args.push_str(" --v4l2=");
         args.push_str(config.v4l2.trim());
@@ -234,7 +237,7 @@ pub fn build_args() -> String {
         if config.restart_app {
             args.push('+');
         }
-        if config.app_name_type==AppNameType::AppName {
+        if config.app_name_type == AppNameType::AppName {
             args.push('?');
         }
         args.push_str(config.start_app.trim());
@@ -244,8 +247,8 @@ pub fn build_args() -> String {
         args.push_str(" --time-limit=");
         args.push_str(&time_limit.to_string());
     }
-    
-    if config.stay_awake { 
+
+    if config.stay_awake {
         args.push_str(" --stay-awake");
     }
 
@@ -264,11 +267,11 @@ pub fn build_args() -> String {
     if config.fullscreen {
         args.push_str(" --fullscreen");
     }
-    
-    if config.disable_screensaver { 
+
+    if config.disable_screensaver {
         args.push_str(" --no-screensaver");
     }
-    
+
     if !config.additional_args.trim().is_empty() {
         args.push(' ');
         args.push_str(config.additional_args.trim());

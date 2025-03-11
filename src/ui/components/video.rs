@@ -20,20 +20,20 @@ define_component!(video, |config, _| {
             }
             .to_string()
         ),
-        StateButton::pick_list(config.video_source, Message::VideoSourceChanged)
+        StateButton::pick_list(config.default.video_source, Message::VideoSourceChanged)
     ];
 
-    if config.video_source == VideoSource::No {
+    if config.default.video_source == VideoSource::No {
         return column.push(source).into();
     }
 
-    let camera_size = match &config.video_size {
+    let camera_size = match &config.default.video_size {
         None => "".to_string(),
         Some(size) => size.to_string(),
     };
-    if config.video_source == VideoSource::Camera {
+    if config.default.video_source == VideoSource::Camera {
         source = source.push(StateButton::pick_list(
-            config.camera,
+            config.default.camera,
             Message::CameraChanged,
         ))
     }
@@ -64,7 +64,7 @@ define_component!(video, |config, _| {
                     zh: "播放"
                 }
                 .to_string(),
-                config.video_playback,
+                config.default.video_playback,
             )
             .on_toggle(Message::VideoPlaybackChanged),
         );
@@ -77,7 +77,7 @@ define_component!(video, |config, _| {
             }
             .to_string()
         ),
-        StateButton::pick_list(config.video_codec, Message::VideoCodecChanged),
+        StateButton::pick_list(config.default.video_codec, Message::VideoCodecChanged),
         text(
             t! {
                 en: "Options: ",
@@ -85,7 +85,7 @@ define_component!(video, |config, _| {
             }
             .to_string()
         ),
-        d_text_input!("", &config.video_codec_options)
+        d_text_input!("", &config.default.video_codec_options)
             .width(300)
             .on_input(Message::VideoCodecOptionsChanged)
     ];
@@ -98,11 +98,11 @@ define_component!(video, |config, _| {
             }
             .to_string(),
         ),
-        StateButton::button(config.orientation_type, Message::OrientationTypeChanged),
-        StateButton::pick_list(config.orientation_angle, Message::OrientationAngleChanged)
+        StateButton::button(config.default.orientation_type, Message::OrientationTypeChanged),
+        StateButton::pick_list(config.default.orientation_angle, Message::OrientationAngleChanged)
     ];
 
-    if config.orientation_type == OrientationType::Capture {
+    if config.default.orientation_type == OrientationType::Capture {
         orientation = orientation.push(
             checkbox(
                 t! {
@@ -110,13 +110,13 @@ define_component!(video, |config, _| {
                     zh: "锁定方向"
                 }
                 .to_string(),
-                config.orientation_lock,
+                config.default.orientation_lock,
             )
             .on_toggle(Message::OrientationLockChanged),
         );
     }
 
-    if config.orientation_angle != OrientationAngle::Default {
+    if config.default.orientation_angle != OrientationAngle::Default {
         orientation = orientation.push(
             checkbox(
                 t! {
@@ -124,7 +124,7 @@ define_component!(video, |config, _| {
                     zh: "翻转"
                 }
                 .to_string(),
-                config.orientation_flip,
+                config.default.orientation_flip,
             )
             .on_toggle(Message::OrientationFlipChanged),
         );
