@@ -56,6 +56,7 @@ pub struct ConfigItemRaw {
     pub virtual_display: Option<bool>,
     pub display_height: Option<u32>,
     pub display_width: Option<u32>,
+    pub display_ime_policy: Option<String>,
     pub destroy_app_on_close: Option<bool>,
     pub start_app: Option<String>,
     pub restart_app: Option<bool>,
@@ -104,6 +105,7 @@ pub struct ConfigItem {
     pub virtual_display: bool,
     pub display_height: u32,
     pub display_width: u32,
+    pub display_ime_policy: DisplayImePolicy,
     pub destroy_app_on_close: bool,
     pub start_app: String,
     pub restart_app: bool,
@@ -211,6 +213,7 @@ impl ConfigItemRaw {
             virtual_display: self.virtual_display.unwrap_or_default(),
             display_height: self.display_height.unwrap_or_default(),
             display_width: self.display_width.unwrap_or_default(),
+            display_ime_policy: DisplayImePolicy::from_config_str(&self.display_ime_policy),
             destroy_app_on_close: self.destroy_app_on_close.unwrap_or(true),
             start_app: self.start_app.clone().unwrap_or_default(),
             restart_app: self.restart_app.unwrap_or_default(),
@@ -262,6 +265,7 @@ impl ConfigItem {
             virtual_display: Some(self.virtual_display),
             display_height: Some(self.display_height),
             display_width: Some(self.display_width),
+            display_ime_policy: Some(self.display_ime_policy.to_config_string()),
             destroy_app_on_close: Some(self.destroy_app_on_close),
             start_app: Some(self.start_app.clone()),
             restart_app: Some(self.restart_app),
@@ -358,13 +362,13 @@ pub trait ConfigEnum {
 #[macro_export]
 macro_rules! config_enum {
     (
-        pub enum $name:ident {
+        $(pub enum $name:ident {
             $(
                 $(#[$meta:meta])?
                 $variant:ident: $label:expr, $display:expr,
             )*
-        }
-    ) => {
+        })*
+    ) => {$(
         #[derive(Copy, Clone, PartialEq, Debug, Default)]
         pub enum $name {
             $(
@@ -418,7 +422,7 @@ macro_rules! config_enum {
                     }
                 )
             }
-        }
+        })*
     };
 }
 
@@ -428,18 +432,14 @@ config_enum! {
         Adb: "adb", "ADB",
         Otg: "otg", "OTG",
     }
-}
 
-config_enum! {
     pub enum VideoSource {
         No: "no", t! {zh: "无",en: "no video"}.to_string(),
         #[default]
         Display: "display", t! {zh: "屏幕",en: "display"}.to_string(),
         Camera:"camera",  t! {zh: "摄像头 (Android 12+)",en: "camera (Android 12+)"}.to_string(),
     }
-}
 
-config_enum! {
     pub enum Camera {
         #[default]
         Default: "default", t! {zh: "默认",en: "default"}.to_string(),
@@ -447,26 +447,20 @@ config_enum! {
         Back:"back", t! {zh: "后置",en: "back"}.to_string(),
         External:"external", t! {zh: "外置",en: "external"}.to_string(),
     }
-}
 
-config_enum! {
     pub enum VideoCodec{
         #[default]
         H264: "h264", "h264",
         H265: "h265", "h265",
         Av1: "av1", "av1",
     }
-}
 
-config_enum! {
     pub enum OrientationType{
         #[default]
         Client: "client", t! {zh: "客户端",en: "client"}.to_string(),
         Capture: "capture", t! {zh: "捕获",en: "capture"}.to_string(),
     }
-}
 
-config_enum! {
     pub enum OrientationAngle {
         #[default]
         Default:"default", t! {zh: "默认",en: "default"}.to_string(),
@@ -475,19 +469,23 @@ config_enum! {
         _180: "180", "180°".to_string(),
         _270: "270", "270°".to_string(),
     }
-}
 
-config_enum! {
     pub enum AudioSource {
         No: "no", t! {zh: "无音频",en: "No audio"}.to_string(),
         #[default]
         Output: "output", t! {zh: "音频输出 (Android 11+)",en: "Audio output (Android 11+)"}.to_string(),
         Playback: "playback", "Playback (Android 13+)".to_string(),
         Mic: "mic", t!{zh: "麦克风",en: "Microphone"}.to_string(),
+        MicUnprocessed: "mic-unprocessed", t!{zh: "麦克风 (未处理)",en: "Microphone (unprocessed)"}.to_string(),
+        MicCamcorder: "mic-camcorder", t!{zh: "麦克风 (摄像机)",en: "Microphone (camcorder)"}.to_string(),
+        MicVoiceRecognition: "mic-voice-recognition", t!{zh: "麦克风 (语音识别)",en: "Microphone (voice recognition)"}.to_string(),
+        MicVoiceCommunication: "mic-voice-communication", t!{zh: "麦克风 (语音通信)",en: "Microphone (voice communication)"}.to_string(),
+        VoiceCall: "voice-call", t!{zh: "语音通话",en: "Voice call"}.to_string(),
+        VoiceCallUplink: "voice-call-uplink", t!{zh: "语音通话 (上行)",en: "Voice call (uplink)"}.to_string(),
+        VoiceCallDownlink: "voice-call-downlink", t!{zh: "语音通话 (下行)",en: "Voice call (downlink)"}.to_string(),
+        VoicePerformance: "voice-performance", t!{zh: "语音性能",en: "Voice performance"}.to_string(),
     }
-}
 
-config_enum! {
     pub enum AudioCodec {
         #[default]
         Opus: "opus", "opus",
@@ -495,9 +493,7 @@ config_enum! {
         Flac: "flac", "flac",
         Raw: "raw", "raw",
     }
-}
 
-config_enum! {
     pub enum Keyboard{
         #[default]
         Sdk: "sdk", "SDK".to_string(),
@@ -505,9 +501,7 @@ config_enum! {
         Aoa: "aoa", "AOA".to_string(),
         Disabled: "disabled", t! {zh: "禁用",en: "Disabled"}.to_string(),
     }
-}
 
-config_enum! {
     pub enum Mouse{
         #[default]
         Sdk: "sdk", "SDK".to_string(),
@@ -515,18 +509,21 @@ config_enum! {
         Aoa: "aoa", "AOA".to_string(),
         Disabled: "disabled", t! {zh: "禁用",en: "Disabled"}.to_string(),
     }
-}
 
-config_enum! {
     pub enum Gamepad{
         #[default]
         Disabled: "disabled", t! {zh: "禁用",en: "Disabled"}.to_string(),
         Uhid: "uhid", "UHID".to_string(),
         Aoa: "aoa", "AOA".to_string(),
     }
-}
 
-config_enum! {
+    pub enum DisplayImePolicy{
+        Local: "local", t! {zh: "当前显示器",en: "Local"}.to_string(),
+        #[default]
+        Fallback: "fallback", t! {zh: "默认显示器",en: "Fallback"}.to_string(),
+        Hide: "hide", t! {zh: "隐藏",en: "Hide"}.to_string(),
+    }
+
     pub enum AppNameType{
         #[default]
         PackageName: "package_name", t! {zh: "包名",en: "Package name"}.to_string(),

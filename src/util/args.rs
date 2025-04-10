@@ -1,6 +1,6 @@
 use crate::config::{
-    AppNameType, AudioCodec, AudioSource, Camera, ConnectMethod, Gamepad, Keyboard, Mouse,
-    OrientationAngle, OrientationType, VideoCodec, VideoSource,
+    AppNameType, AudioCodec, AudioSource, Camera, ConfigEnum, ConnectMethod, DisplayImePolicy,
+    Gamepad, Keyboard, Mouse, OrientationAngle, OrientationType, VideoCodec, VideoSource,
 };
 use crate::CONFIG;
 
@@ -63,8 +63,8 @@ pub fn build_args() -> String {
             || (config.orientation_type == OrientationType::Capture && config.orientation_lock)
         {
             args.push_str(match config.orientation_type {
-                OrientationType::Client => " --capture-orientation=",
-                OrientationType::Capture => "--orientation=",
+                OrientationType::Client => " --orientation=",
+                OrientationType::Capture => " --capture-orientation=",
             });
             if config.orientation_type == OrientationType::Capture && config.orientation_lock {
                 args.push('@');
@@ -88,20 +88,18 @@ pub fn build_args() -> String {
         AudioSource::No => {
             args.push_str(" --no-audio");
         }
-        AudioSource::Output => {
-            if config.video_source == VideoSource::Camera {
-                args.push_str(" --audio-source=output");
-            }
-        }
         AudioSource::Playback => {
             args.push_str(" --audio-source=playback");
             if config.audio_dup {
                 args.push_str(" --audio-dup");
             }
         }
-        AudioSource::Mic => {
+        _ => {
             if config.video_source != VideoSource::Camera {
-                args.push_str(" --audio-source=mic");
+                args.push_str(&format!(
+                    " --audio-source={}",
+                    config.audio_source.to_config_string()
+                ));
             }
         }
     }
@@ -227,6 +225,15 @@ pub fn build_args() -> String {
         args.push_str(&config.display_width.to_string());
         args.push('x');
         args.push_str(&config.display_height.to_string());
+        match config.display_ime_policy {
+            DisplayImePolicy::Local => {
+                args.push_str(" --display-ime-policy=local");
+            }
+            DisplayImePolicy::Fallback => {}
+            DisplayImePolicy::Hide => {
+                args.push_str(" --display-ime-policy=hide");
+            }
+        }
         if !config.destroy_app_on_close {
             args.push_str(" --no-vd-destroy-content");
         }

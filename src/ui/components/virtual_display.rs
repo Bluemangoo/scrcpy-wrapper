@@ -1,5 +1,5 @@
 use crate::config::VideoSource;
-use crate::ui::Message;
+use crate::ui::{Message, StateButton};
 use crate::{d_column, d_row, d_sub_title, d_text_input, define_component, t};
 use iced::widget::{checkbox, text};
 
@@ -67,6 +67,20 @@ define_component!(virtual_display, |config, _| {
         text(display_orientation.to_string())
     ];
 
+    let ime_policy = d_row![
+        text(
+            t! {
+                en: "IME policy: ",
+                zh: "输入法策略："
+            }
+            .to_string(),
+        ),
+        StateButton::pick_list(
+            config.default.display_ime_policy,
+            Message::DisplayImePolicyChanged
+        )
+    ];
+
     let destroy_app_on_close = checkbox(
         t! {
             en: "Destroy app on close",
@@ -79,7 +93,10 @@ define_component!(virtual_display, |config, _| {
 
     column = column.push(enable_virtual_display);
     if config.default.virtual_display {
-        column = column.push(display_size).push(destroy_app_on_close);
+        column = column
+            .push(display_size)
+            .push(ime_policy)
+            .push(destroy_app_on_close);
     }
     column.into()
 });

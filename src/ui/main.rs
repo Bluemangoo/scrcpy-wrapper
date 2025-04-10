@@ -1,7 +1,4 @@
-use crate::config::{
-    AppNameType, AudioCodec, AudioSource, Camera, ConfigItemRaw, ConnectMethod, Gamepad, Keyboard,
-    Mouse, OrientationAngle, OrientationType, VideoCodec, VideoSource,
-};
+use crate::config::{AppNameType, AudioCodec, AudioSource, Camera, ConfigItemRaw, ConnectMethod, DisplayImePolicy, Gamepad, Keyboard, Mouse, OrientationAngle, OrientationType, VideoCodec, VideoSource};
 use crate::i18n::{Language, LANGUAGE};
 use crate::ui::{components, style_default};
 use crate::util::{build_args, select_config_valid, ConfigStatus};
@@ -63,6 +60,7 @@ pub enum Message {
     VirtualDisplayChanged(bool),
     DisplayHeightChanged(String),
     DisplayWidthChanged(String),
+    DisplayImePolicyChanged(DisplayImePolicy),
     DestroyAppOnCloseChanged(bool),
     StartAppChanged(String),
     RestartAppChanged(bool),
@@ -258,6 +256,10 @@ impl WinMain {
                 } else if let Ok(size) = width.parse::<u32>() {
                     CONFIG.write().unwrap().default.display_width = size
                 };
+                self.args = build_args();
+            }
+            Message::DisplayImePolicyChanged(policy) => {
+                CONFIG.write().unwrap().default.display_ime_policy = policy;
                 self.args = build_args();
             }
             Message::DestroyAppOnCloseChanged(destroy_app_on_close) => {
