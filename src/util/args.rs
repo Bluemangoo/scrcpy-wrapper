@@ -88,6 +88,7 @@ pub fn build_args() -> String {
         AudioSource::No => {
             args.push_str(" --no-audio");
         }
+        AudioSource::Output => {}
         AudioSource::Playback => {
             args.push_str(" --audio-source=playback");
             if config.audio_dup {
