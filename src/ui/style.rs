@@ -1,4 +1,6 @@
 pub mod style_default {
+    use iced::{Length, Pixels};
+
     pub struct Padding;
 
     impl Padding {
@@ -33,36 +35,36 @@ pub mod style_default {
     pub struct Spacing;
 
     impl Spacing {
-        pub fn general() -> f32 {
-            10.0
+        pub fn general() -> Pixels {
+            Pixels(10.0)
         }
     }
 
     pub struct Size;
 
     impl Size {
-        pub fn input() -> u16 {
-            15
+        pub fn input() -> Pixels {
+            Pixels(15.0)
         }
 
-        pub fn text_in_button() -> u16 {
-            15
+        pub fn text_in_button() -> Pixels {
+            Pixels(15.0)
         }
 
-        pub fn text_sub_title() -> u16 {
-            20
+        pub fn text_sub_title() -> Pixels {
+            Pixels(20.0)
         }
     }
 
     pub struct Height;
 
     impl Height {
-        pub fn button() -> f32 {
-            28.0
+        pub fn button() -> Length {
+            Length::Fixed(28.0)
         }
 
-        pub fn hr() -> f32 {
-            10.0
+        pub fn hr() -> Pixels {
+            Pixels(10.0)
         }
     }
 }
@@ -113,9 +115,10 @@ macro_rules! d_button {
     ($text:expr) => {
         iced::widget::button(
             iced::widget::text($text)
-            .align_x(iced::Center)
-            .align_y(iced::Center)
-            .size($crate::ui::style_default::Size::text_in_button()))
+                .align_x(iced::Center)
+                .align_y(iced::Center)
+                .size($crate::ui::style_default::Size::text_in_button()),
+        )
         .style(iced::widget::button::secondary)
         .height($crate::ui::style_default::Height::button())
         .width(iced::Length::Shrink)

@@ -31,7 +31,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     drop(CONFIG.read().unwrap());
 
-    iced::application(ui::WinMain::title, ui::WinMain::update, ui::WinMain::view)
+    let font = Font::with_name(if cfg!(target_os = "windows") {
+        "Microsoft YaHei"
+    } else if cfg!(target_os = "macos") {
+        "PingFang SC"
+    } else {
+        "Noto Sans CJK SC"
+    });
+
+    iced::application(ui::WinMain::default, ui::WinMain::update, ui::WinMain::view)
         .window(Settings {
             size: Size {
                 width: 800.0,
@@ -45,14 +53,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             }),
             ..Default::default()
         })
+        .title(ui::WinMain::title)
         .subscription(ui::WinMain::subscription)
-        .default_font(Font::with_name(if cfg!(target_os = "windows") {
-            "Microsoft YaHei"
-        } else if cfg!(target_os = "macos") {
-            "PingFang SC"
-        } else {
-            "Noto Sans CJK SC"
-        }))
+        .default_font(font)
         .run()
         .unwrap();
 

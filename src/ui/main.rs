@@ -1,4 +1,7 @@
-use crate::config::{AppNameType, AudioCodec, AudioSource, Camera, ConfigItemRaw, ConnectMethod, DisplayImePolicy, Gamepad, Keyboard, Mouse, OrientationAngle, OrientationType, VideoCodec, VideoSource};
+use crate::config::{
+    AppNameType, AudioCodec, AudioSource, Camera, ConfigItemRaw, ConnectMethod, DisplayImePolicy,
+    Gamepad, Keyboard, Mouse, OrientationAngle, OrientationType, VideoCodec, VideoSource,
+};
 use crate::i18n::{Language, LANGUAGE};
 use crate::ui::{components, style_default};
 use crate::util::{build_args, select_config_valid, ConfigStatus};
